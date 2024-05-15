@@ -35,11 +35,12 @@ const sendMessages = async (messages, replyToken, callback) => {
     return;
   }
   try {
+    const message = messages.shift();
+    console.log('Sending message:', message); // 日志
     await replyMessage({
       replyToken,
-      messages: [messages.shift()],
+      messages: [message],
     });
-    console.log('Message sent:', messages[0].text); // 日志
     // 延迟一段时间以避免速率限制
     setTimeout(() => sendMessages(messages, replyToken, callback), 1000);
   } catch (err) {
@@ -83,7 +84,7 @@ const exec = (context) => check(context) && (
         }
         allMessages.push(...splitText(text));
       } catch (err) {
-        console.error('Error in exec function', err); // 错误日志
+        console.error('Error in exec function:', err); // 错误日志
         context.pushError(err);
         break;
       }
