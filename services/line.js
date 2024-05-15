@@ -41,13 +41,16 @@ client.interceptors.response.use(handleFulfilled, (err) => {
   return handleRejected(err);
 });
 
-const reply = ({
+const reply = async ({
   replyToken,
   messages,
-}) => client.post('/v2/bot/message/reply', {
-  replyToken,
-  messages,
-});
+}) => {
+  console.log('Sending reply via LINE API', { replyToken, messages }); // 日誌
+  await client.post('/v2/bot/message/reply', {
+    replyToken,
+    messages,
+  });
+};
 
 const fetchGroupSummary = ({
   groupId,
