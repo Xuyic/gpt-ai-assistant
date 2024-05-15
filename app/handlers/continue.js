@@ -23,14 +23,24 @@ const exec = (context) => check(context) && (
     const { lastMessage } = prompt;
     if (lastMessage.isEnquiring) prompt.erase();
     try {
-      const { text, isFinishReasonStop } = await generateCompletion({ prompt });
-      prompt.patch(text);
-      if (lastMessage.isEnquiring && !isFinishReasonStop) prompt.write('', lastMessage.content);
-      setPrompt(context.userId, prompt);
-      if (!lastMessage.isEnquiring) updateHistory(context.id, (history) => history.patch(text));
+      let isFinishReasonStop = false;
+      let finalText = '';
+      while (!isFinishReasonStop) {
+        const { text, isFinishReasonStop: stop } = await generateCompletion({ prompt });
+        isFinishReasonStop = stop;
+        prompt.patch(text);
+        finalText += text;
+        if (lastMessage.isEnquiring && !isFinishReasonStop) {
+          prompt.write('', lastMessage.content);
+        }
+        setPrompt(context.userId, prompt);
+        if (!lastMessage.isEnquiring) {
+          updateHistory(context.id, (history) => history.patch(text));
+        }
+      }
       const defaultActions = ALL_COMMANDS.filter(({ type }) => type === lastMessage.content);
       const actions = isFinishReasonStop ? defaultActions : [COMMAND_BOT_CONTINUE];
-      context.pushText(text, actions);
+      context.pushText(finalText, actions);
 
       console.log('Before calling replyMessage', {
         replyToken: context.event.replyToken,
