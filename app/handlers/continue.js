@@ -39,6 +39,7 @@ const sendMessages = async (messages, replyToken, callback) => {
       replyToken,
       messages: [messages.shift()],
     });
+    console.log('Message sent:', messages[0].text); // 日志
     // 延迟一段时间以避免速率限制
     setTimeout(() => sendMessages(messages, replyToken, callback), 1000);
   } catch (err) {
@@ -87,6 +88,8 @@ const exec = (context) => check(context) && (
         break;
       }
     }
+
+    console.log('All messages prepared for sending:', allMessages); // 日志
 
     // 发送所有消息
     sendMessages(allMessages, context.event.replyToken, () => {
