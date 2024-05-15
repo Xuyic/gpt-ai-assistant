@@ -17,6 +17,7 @@ const check = (context) => context.hasCommand(COMMAND_BOT_CONTINUE);
  */
 const exec = (context) => check(context) && (
   async () => {
+    console.log('Entered exec function'); // 日誌
     updateHistory(context.id, (history) => history.erase());
     const prompt = getPrompt(context.userId);
     const { lastMessage } = prompt;
@@ -31,6 +32,14 @@ const exec = (context) => check(context) && (
       const actions = isFinishReasonStop ? defaultActions : [COMMAND_BOT_CONTINUE];
       context.pushText(text, actions);
 
+      console.log('Before calling replyMessage', {
+        replyToken: context.event.replyToken,
+        messages: context.messages.map(message => ({
+          type: 'text',
+          text: message.text,
+        })),
+      }); // 日誌
+
       // 自動發送回應
       await replyMessage({
         replyToken: context.event.replyToken,
@@ -39,8 +48,11 @@ const exec = (context) => check(context) && (
           text: message.text,
         })),
       });
+
+      console.log('After calling replyMessage'); // 日誌
       
     } catch (err) {
+      console.error('Error in exec function', err); // 錯誤日誌
       context.pushError(err);
     }
     return context;
