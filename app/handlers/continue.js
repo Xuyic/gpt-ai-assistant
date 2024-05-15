@@ -25,12 +25,13 @@ const exec = (context) => check(context) && (
 
     try {
       let isFinishReasonStop = false;
-      let finalText = '';
+      const messageLimit = 2000; // 每條訊息的最大字數限制
+      const messages = [];
+
       while (!isFinishReasonStop) {
         const { text, isFinishReasonStop: stop } = await generateCompletion({ prompt });
         isFinishReasonStop = stop;
         prompt.patch(text);
-        finalText += text;
         if (lastMessage.isEnquiring && !isFinishReasonStop) {
           prompt.write('', lastMessage.content);
         }
@@ -38,26 +39,25 @@ const exec = (context) => check(context) && (
         if (!lastMessage.isEnquiring) {
           updateHistory(context.id, (history) => history.patch(text));
         }
+
+        // 分割訊息
+        let remainingText = text;
+        while (remainingText.length > 0) {
+          const messageText = remainingText.slice(0, messageLimit);
+          remainingText = remainingText.slice(messageLimit);
+          messages.push({ type: 'text', text: messageText });
+        }
       }
-      const defaultActions = ALL_COMMANDS.filter(({ type }) => type === lastMessage.content);
-      const actions = isFinishReasonStop ? defaultActions : [COMMAND_BOT_CONTINUE];
-      context.pushText(finalText, actions);
 
-      console.log('Before calling replyMessage', {
-        replyToken: context.event.replyToken,
-        messages: context.messages.map(message => ({
-          type: 'text',
-          text: message.text,
-        })),
-      }); // 日誌
+      // 自動發送所有訊息
+      for (const message of messages) {
+        await replyMessage({
+          replyToken: context.event.replyToken,
+          messages: [message],
+        });
+      }
 
-      // 自動發送回應
-      await replyMessage({
-        replyToken: context.event.replyToken,
-        messages: [{ type: 'text', text: finalText }],
-      });
-
-      console.log('After calling replyMessage'); // 日誌
+      console.log('After sending all messages'); // 日誌
 
     } catch (err) {
       console.error('Error in exec function', err); // 錯誤日誌
