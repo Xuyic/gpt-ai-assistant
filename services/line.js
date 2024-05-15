@@ -41,28 +41,22 @@ client.interceptors.response.use(handleFulfilled, (err) => {
   return handleRejected(err);
 });
 
-const reply = async ({
-  replyToken,
-  messages,
-}) => {
-  console.log('Sending reply via LINE API', { replyToken, messages }); // 日誌
+const reply = async ({ replyToken, messages }) => {
+  console.log('Sending reply via LINE API', { replyToken, messages }); // 日志
   try {
     await client.post('/v2/bot/message/reply', {
       replyToken,
       messages,
     });
+    console.log('Reply sent successfully'); // 日志
   } catch (error) {
     console.error('Error sending reply:', error.response ? error.response.data : error.message);
   }
 };
 
-const fetchGroupSummary = ({
-  groupId,
-}) => client.get(`/v2/bot/group/${groupId}/summary`);
+const fetchGroupSummary = ({ groupId }) => client.get(`/v2/bot/group/${groupId}/summary`);
 
-const fetchProfile = ({
-  userId,
-}) => client.get(`/v2/bot/profile/${userId}`);
+const fetchProfile = ({ userId }) => client.get(`/v2/bot/profile/${userId}`);
 
 const dataClient = axios.create({
   baseURL: 'https://api-data.line.me',
@@ -84,9 +78,7 @@ dataClient.interceptors.response.use(handleFulfilled, (err) => {
   return handleRejected(err);
 });
 
-const fetchContent = ({
-  messageId,
-}) => dataClient.get(`/v2/bot/message/${messageId}/content`, {
+const fetchContent = ({ messageId }) => dataClient.get(`/v2/bot/message/${messageId}/content`, {
   responseType: 'arraybuffer',
 });
 
