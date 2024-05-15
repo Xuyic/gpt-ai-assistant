@@ -46,10 +46,14 @@ const reply = async ({
   messages,
 }) => {
   console.log('Sending reply via LINE API', { replyToken, messages }); // 日誌
-  await client.post('/v2/bot/message/reply', {
-    replyToken,
-    messages,
-  });
+  try {
+    await client.post('/v2/bot/message/reply', {
+      replyToken,
+      messages,
+    });
+  } catch (error) {
+    console.error('Error sending reply:', error.response ? error.response.data : error.message);
+  }
 };
 
 const fetchGroupSummary = ({
