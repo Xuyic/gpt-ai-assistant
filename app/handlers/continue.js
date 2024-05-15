@@ -1,4 +1,4 @@
-import { generateCompletion } from '../../utils/index.js';
+import { generateCompletion, replyMessage } from '../../utils/index.js';
 import { ALL_COMMANDS, COMMAND_BOT_CONTINUE } from '../commands/index.js';
 import Context from '../context.js';
 import { updateHistory } from '../history/index.js';
@@ -31,7 +31,7 @@ const exec = (context) => check(context) && (
       context.pushText(text, actions);
 
       // 自動發送回應
-      await context.replyMessage(); 
+      await replyMessage(context); 
       
     } catch (err) {
       context.pushError(err);
