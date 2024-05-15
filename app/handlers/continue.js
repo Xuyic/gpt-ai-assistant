@@ -29,6 +29,10 @@ const exec = (context) => check(context) && (
       const defaultActions = ALL_COMMANDS.filter(({ type }) => type === lastMessage.content);
       const actions = isFinishReasonStop ? defaultActions : [COMMAND_BOT_CONTINUE];
       context.pushText(text, actions);
+
+      // 自動發送回應
+      await context.replyMessage(); 
+      
     } catch (err) {
       context.pushError(err);
     }
