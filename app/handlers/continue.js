@@ -22,6 +22,7 @@ const exec = (context) => check(context) && (
     const prompt = getPrompt(context.userId);
     const { lastMessage } = prompt;
     if (lastMessage.isEnquiring) prompt.erase();
+
     try {
       let isFinishReasonStop = false;
       let finalText = '';
@@ -53,14 +54,11 @@ const exec = (context) => check(context) && (
       // 自動發送回應
       await replyMessage({
         replyToken: context.event.replyToken,
-        messages: context.messages.map(message => ({
-          type: 'text',
-          text: message.text,
-        })),
+        messages: [{ type: 'text', text: finalText }],
       });
 
       console.log('After calling replyMessage'); // 日誌
-      
+
     } catch (err) {
       console.error('Error in exec function', err); // 錯誤日誌
       context.pushError(err);
